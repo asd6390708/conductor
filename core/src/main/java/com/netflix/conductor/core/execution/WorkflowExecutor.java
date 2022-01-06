@@ -832,7 +832,11 @@ public class WorkflowExecutor {
                             terminationStatus, terminateTask.get().getTaskId());
             if (WorkflowStatus.FAILED.name().equals(terminationStatus)) {
                 workflow.setStatus(WorkflowStatus.FAILED);
-                workflow = terminate(workflow, new TerminateWorkflowException(reason));
+                workflow =
+                        terminate(
+                                workflow,
+                                new TerminateWorkflowException(
+                                        reason, workflow.getStatus(), terminateTask.get()));
             } else {
                 workflow.setReasonForIncompletion(reason);
                 workflow = completeWorkflow(workflow);
@@ -931,6 +935,18 @@ public class WorkflowExecutor {
      *     termination
      */
     public Workflow terminateWorkflow(Workflow workflow, String reason, String failureWorkflow) {
+        return terminateWorkflow(workflow, null, reason, failureWorkflow);
+    }
+
+    /**
+     * @param workflow the workflow to be terminated
+     * @param failedTask the failed task that caused the workflow termination, can be null
+     * @param reason the reason for termination
+     * @param failureWorkflow the failure workflow (if any) to be triggered as a result of this
+     *     termination
+     */
+    public Workflow terminateWorkflow(
+            Workflow workflow, Task failedTask, String reason, String failureWorkflow) {
         try {
             executionLockService.acquireLock(workflow.getWorkflowId(), 60000);
 
@@ -1001,6 +1017,9 @@ public class WorkflowExecutor {
                 input.put("workflowId", workflowId);
                 input.put("reason", reason);
                 input.put("failureStatus", workflow.getStatus().toString());
+                if (failedTask != null) {
+                    input.put("failureTaskId", failedTask.getTaskId());
+                }
 
                 try {
                     WorkflowDef latestFailureWorkflow =
@@ -1017,7 +1036,7 @@ public class WorkflowExecutor {
                                     latestFailureWorkflow,
                                     input,
                                     null,
-                                    workflowId,
+                                    workflow.getCorrelationId(),
                                     null,
                                     workflow.getTaskToDomain());
 
@@ -1820,7 +1839,10 @@ public class WorkflowExecutor {
             executionDAOFacade.updateTask(terminateWorkflowException.getTask());
         }
         return terminateWorkflow(
-                workflow, terminateWorkflowException.getMessage(), failureWorkflow);
+                workflow,
+                terminateWorkflowException.getTask(),
+                terminateWorkflowException.getMessage(),
+                failureWorkflow);
     }
 
     private boolean rerunWF(

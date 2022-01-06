@@ -2079,6 +2079,55 @@ public class TestWorkflowExecutor {
         verify(queueDAO, times(1)).push(anyString(), anyString(), anyInt(), anyLong());
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testTerminateWorkflowWithFailureWorkflow() {
+        Workflow workflow = new Workflow();
+        workflow.setWorkflowId("1");
+        workflow.setCorrelationId("testid");
+        workflow.setWorkflowDefinition(new WorkflowDef());
+        workflow.setStatus(Workflow.WorkflowStatus.RUNNING);
+        workflow.setOwnerApp("junit_test");
+        workflow.setStartTime(10L);
+        workflow.setEndTime(100L);
+        workflow.setOutput(Collections.EMPTY_MAP);
+
+        Task failedTask = new Task();
+        failedTask.setTaskId("taskid");
+        failedTask.setReferenceTaskName("failed");
+        failedTask.setStatus(Status.FAILED);
+        workflow.getTasks().addAll(Arrays.asList(failedTask));
+
+        WorkflowDef failureWorkflowDef = new WorkflowDef();
+        failureWorkflowDef.setName("failure workflow");
+        when(metadataDAO.getLatestWorkflowDef(failureWorkflowDef.getName()))
+                .thenReturn(Optional.of(failureWorkflowDef));
+
+        Workflow failureWorkflow = new Workflow();
+        failureWorkflow.setWorkflowId("2");
+        failureWorkflow.setWorkflowDefinition(failureWorkflowDef);
+        when(executionDAOFacade.getWorkflowById(anyString(), anyBoolean()))
+                .thenReturn(failureWorkflow);
+
+        when(executionLockService.acquireLock(anyString())).thenReturn(true);
+
+        workflowExecutor.terminateWorkflow(
+                workflow, failedTask, "reason", failureWorkflowDef.getName());
+
+        assertEquals(Workflow.WorkflowStatus.TERMINATED, workflow.getStatus());
+        ArgumentCaptor<Workflow> argumentCaptor = ArgumentCaptor.forClass(Workflow.class);
+        verify(executionDAOFacade, times(1)).createWorkflow(argumentCaptor.capture());
+        assertEquals(
+                workflow.getCorrelationId(),
+                argumentCaptor.getAllValues().get(0).getCorrelationId());
+        assertEquals(
+                workflow.getWorkflowId(),
+                argumentCaptor.getAllValues().get(0).getInput().get("workflowId"));
+        assertEquals(
+                failedTask.getTaskId(),
+                argumentCaptor.getAllValues().get(0).getInput().get("failureTaskId"));
+    }
+
     private Workflow generateSampleWorkflow() {
         // setup
         Workflow workflow = new Workflow();
