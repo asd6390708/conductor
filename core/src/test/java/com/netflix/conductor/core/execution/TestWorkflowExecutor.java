@@ -2092,11 +2092,16 @@ public class TestWorkflowExecutor {
         workflow.setEndTime(100L);
         workflow.setOutput(Collections.EMPTY_MAP);
 
+        Task successTask = new Task();
+        successTask.setTaskId("taskid1");
+        successTask.setReferenceTaskName("success");
+        successTask.setStatus(Status.COMPLETED);
+
         Task failedTask = new Task();
-        failedTask.setTaskId("taskid");
+        failedTask.setTaskId("taskid2");
         failedTask.setReferenceTaskName("failed");
         failedTask.setStatus(Status.FAILED);
-        workflow.getTasks().addAll(Arrays.asList(failedTask));
+        workflow.getTasks().addAll(Arrays.asList(successTask, failedTask));
 
         WorkflowDef failureWorkflowDef = new WorkflowDef();
         failureWorkflowDef.setName("failure workflow");
@@ -2111,8 +2116,7 @@ public class TestWorkflowExecutor {
 
         when(executionLockService.acquireLock(anyString())).thenReturn(true);
 
-        workflowExecutor.terminateWorkflow(
-                workflow, failedTask, "reason", failureWorkflowDef.getName());
+        workflowExecutor.terminateWorkflow(workflow, "reason", failureWorkflowDef.getName());
 
         assertEquals(Workflow.WorkflowStatus.TERMINATED, workflow.getStatus());
         ArgumentCaptor<Workflow> argumentCaptor = ArgumentCaptor.forClass(Workflow.class);

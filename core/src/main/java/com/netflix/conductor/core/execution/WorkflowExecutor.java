@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -935,18 +936,6 @@ public class WorkflowExecutor {
      *     termination
      */
     public Workflow terminateWorkflow(Workflow workflow, String reason, String failureWorkflow) {
-        return terminateWorkflow(workflow, null, reason, failureWorkflow);
-    }
-
-    /**
-     * @param workflow the workflow to be terminated
-     * @param failedTask the failed task that caused the workflow termination, can be null
-     * @param reason the reason for termination
-     * @param failureWorkflow the failure workflow (if any) to be triggered as a result of this
-     *     termination
-     */
-    public Workflow terminateWorkflow(
-            Workflow workflow, Task failedTask, String reason, String failureWorkflow) {
         try {
             executionLockService.acquireLock(workflow.getWorkflowId(), 60000);
 
@@ -1017,6 +1006,7 @@ public class WorkflowExecutor {
                 input.put("workflowId", workflowId);
                 input.put("reason", reason);
                 input.put("failureStatus", workflow.getStatus().toString());
+                Task failedTask = findLastFailedTask(workflow);
                 if (failedTask != null) {
                     input.put("failureTaskId", failedTask.getTaskId());
                 }
@@ -1839,10 +1829,7 @@ public class WorkflowExecutor {
             executionDAOFacade.updateTask(terminateWorkflowException.getTask());
         }
         return terminateWorkflow(
-                workflow,
-                terminateWorkflowException.getTask(),
-                terminateWorkflowException.getMessage(),
-                failureWorkflow);
+                workflow, terminateWorkflowException.getMessage(), failureWorkflow);
     }
 
     private boolean rerunWF(
@@ -2038,5 +2025,33 @@ public class WorkflowExecutor {
         } else {
             queueDAO.push(DECIDER_QUEUE, parentWorkflowId, PARENT_WF_PRIORITY, 0);
         }
+    }
+
+    private Task findLastFailedTask(Workflow workflow) {
+        Stream<Task> tasks = workflow.getTasks().stream().filter(UNSUCCESSFUL_TERMINAL_TASK);
+        return tasks.reduce((a, b) -> b).orElse(findFailedTerminateTask(workflow));
+    }
+
+    private Task findFailedTerminateTask(Workflow workflow) {
+        Optional<Task> terminateTask =
+                workflow.getTasks().stream()
+                        .filter(
+                                t ->
+                                        TERMINATE.name().equals(t.getTaskType())
+                                                && t.getStatus().isTerminal()
+                                                && t.getStatus().isSuccessful())
+                        .findFirst();
+        if (terminateTask.isPresent()) {
+            Task task = terminateTask.get();
+            String terminationStatus =
+                    (String)
+                            task.getWorkflowTask()
+                                    .getInputParameters()
+                                    .get(Terminate.getTerminationStatusParameter());
+            if (WorkflowStatus.FAILED.name().equals(terminationStatus)) {
+                return task;
+            }
+        }
+        return null;
     }
 }
