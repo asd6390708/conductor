@@ -28,14 +28,15 @@ import com.netflix.conductor.common.metadata.events.EventHandler.Action;
 import com.netflix.conductor.common.metadata.events.EventHandler.Action.Type;
 import com.netflix.conductor.common.metadata.events.EventHandler.StartWorkflow;
 import com.netflix.conductor.common.metadata.events.EventHandler.TaskDetails;
-import com.netflix.conductor.common.metadata.tasks.Task;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
 import com.netflix.conductor.common.metadata.tasks.TaskResult.Status;
 import com.netflix.conductor.common.metadata.workflow.WorkflowDef;
-import com.netflix.conductor.common.run.Workflow;
+import com.netflix.conductor.core.dal.DomainMapper;
 import com.netflix.conductor.core.execution.WorkflowExecutor;
 import com.netflix.conductor.core.utils.JsonUtils;
 import com.netflix.conductor.core.utils.ParametersUtils;
+import com.netflix.conductor.domain.TaskDO;
+import com.netflix.conductor.domain.WorkflowDO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -56,6 +57,7 @@ import static org.mockito.Mockito.when;
 public class TestSimpleActionProcessor {
 
     private WorkflowExecutor workflowExecutor;
+    private DomainMapper domainMapper;
     private SimpleActionProcessor actionProcessor;
 
     @Autowired private ObjectMapper objectMapper;
@@ -63,15 +65,17 @@ public class TestSimpleActionProcessor {
     @Before
     public void setup() {
         workflowExecutor = mock(WorkflowExecutor.class);
+        domainMapper = mock(DomainMapper.class);
 
         actionProcessor =
                 new SimpleActionProcessor(
                         workflowExecutor,
+                        domainMapper,
                         new ParametersUtils(objectMapper),
                         new JsonUtils(objectMapper));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void testStartWorkflow_correlationId() throws Exception {
         StartWorkflow startWorkflow = new StartWorkflow();
@@ -203,9 +207,9 @@ public class TestSimpleActionProcessor {
                 "{\"workflowId\":\"workflow_1\",\"Message\":{\"someKey\":\"someData\",\"someNullKey\":null}}";
         Object payload = objectMapper.readValue(payloadJson, Object.class);
 
-        Task task = new Task();
+        TaskDO task = new TaskDO();
         task.setReferenceTaskName("testTask");
-        Workflow workflow = new Workflow();
+        WorkflowDO workflow = new WorkflowDO();
         workflow.getTasks().add(task);
 
         when(workflowExecutor.getWorkflow(eq("workflow_1"), anyBoolean())).thenReturn(workflow);
@@ -245,7 +249,7 @@ public class TestSimpleActionProcessor {
                 objectMapper.readValue(
                         "{\"workflowId\":\"workflow_1\", \"taskId\":\"task_1\"}", Object.class);
 
-        Task task = new Task();
+        TaskDO task = new TaskDO();
         task.setTaskId("task_1");
         task.setReferenceTaskName("testTask");
 
