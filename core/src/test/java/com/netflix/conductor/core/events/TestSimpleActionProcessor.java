@@ -12,17 +12,7 @@
  */
 package com.netflix.conductor.core.events;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.conductor.common.config.TestObjectMapperConfiguration;
 import com.netflix.conductor.common.metadata.events.EventHandler.Action;
 import com.netflix.conductor.common.metadata.events.EventHandler.Action.Type;
@@ -33,12 +23,21 @@ import com.netflix.conductor.common.metadata.tasks.TaskResult.Status;
 import com.netflix.conductor.common.metadata.workflow.WorkflowDef;
 import com.netflix.conductor.core.dal.DomainMapper;
 import com.netflix.conductor.core.execution.WorkflowExecutor;
+import com.netflix.conductor.core.utils.ExternalPayloadStorageUtils;
 import com.netflix.conductor.core.utils.JsonUtils;
 import com.netflix.conductor.core.utils.ParametersUtils;
 import com.netflix.conductor.domain.TaskDO;
 import com.netflix.conductor.domain.WorkflowDO;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -48,6 +47,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,15 +57,17 @@ import static org.mockito.Mockito.when;
 public class TestSimpleActionProcessor {
 
     private WorkflowExecutor workflowExecutor;
-    private DomainMapper domainMapper;
+    private ExternalPayloadStorageUtils externalPayloadStorageUtils;
     private SimpleActionProcessor actionProcessor;
 
     @Autowired private ObjectMapper objectMapper;
 
     @Before
     public void setup() {
+        externalPayloadStorageUtils = mock(ExternalPayloadStorageUtils.class);
+
         workflowExecutor = mock(WorkflowExecutor.class);
-        domainMapper = mock(DomainMapper.class);
+        DomainMapper domainMapper = new DomainMapper(externalPayloadStorageUtils);
 
         actionProcessor =
                 new SimpleActionProcessor(
@@ -213,6 +215,7 @@ public class TestSimpleActionProcessor {
         workflow.getTasks().add(task);
 
         when(workflowExecutor.getWorkflow(eq("workflow_1"), anyBoolean())).thenReturn(workflow);
+        doNothing().when(externalPayloadStorageUtils).verifyAndUpload(any(), any());
 
         actionProcessor.execute(action, payload, "testEvent", "testMessage");
 
@@ -254,6 +257,7 @@ public class TestSimpleActionProcessor {
         task.setReferenceTaskName("testTask");
 
         when(workflowExecutor.getTask(eq("task_1"))).thenReturn(task);
+        doNothing().when(externalPayloadStorageUtils).verifyAndUpload(any(), any());
 
         actionProcessor.execute(action, payload, "testEvent", "testMessage");
 

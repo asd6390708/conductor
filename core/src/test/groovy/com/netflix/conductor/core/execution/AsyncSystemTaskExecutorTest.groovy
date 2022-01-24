@@ -96,7 +96,7 @@ class AsyncSystemTaskExecutorTest extends Specification {
         // SUB_WORKFLOW is asyncComplete so its removed from the queue
         1 * queueDAO.remove(queueName, task1Id)
 
-        task1.status == Task.Status.IN_PROGRESS
+        task1.status == TaskStatusDO.IN_PROGRESS
         task1.subWorkflowId == subWorkflowId
         task1.startTime != 0
     }

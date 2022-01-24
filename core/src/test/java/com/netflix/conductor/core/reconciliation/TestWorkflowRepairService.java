@@ -14,15 +14,12 @@ package com.netflix.conductor.core.reconciliation;
 
 import java.time.Duration;
 
+import com.netflix.conductor.core.execution.tasks.*;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.netflix.conductor.core.config.ConductorProperties;
 import com.netflix.conductor.core.execution.WorkflowExecutor;
-import com.netflix.conductor.core.execution.tasks.SubWorkflow;
-import com.netflix.conductor.core.execution.tasks.Switch;
-import com.netflix.conductor.core.execution.tasks.SystemTaskRegistry;
-import com.netflix.conductor.core.execution.tasks.WorkflowSystemTask;
 import com.netflix.conductor.dao.ExecutionDAO;
 import com.netflix.conductor.dao.QueueDAO;
 import com.netflix.conductor.domain.TaskDO;
@@ -142,6 +139,8 @@ public class TestWorkflowRepairService {
     @Test
     public void assertSyncSystemTasksAreNotCheckedAgainstQueue() {
         // Return a Switch task object to init WorkflowSystemTask registry.
+        when(systemTaskRegistry.get(TASK_TYPE_DECISION)).thenReturn(new Decision());
+        when(systemTaskRegistry.isSystemTask(TASK_TYPE_DECISION)).thenReturn(true);
         when(systemTaskRegistry.get(TASK_TYPE_SWITCH)).thenReturn(new Switch());
         when(systemTaskRegistry.isSystemTask(TASK_TYPE_SWITCH)).thenReturn(true);
 

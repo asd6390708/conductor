@@ -217,7 +217,7 @@ class EventSpec extends Specification {
         given:
         String sinkValue = 'conductor'
 
-        TaskDO task = new TaskDO(referenceTaskName: 'task0', taskId: 'task_id_0', status: Task.Status.SCHEDULED, inputData: ['sink': sinkValue])
+        TaskDO task = new TaskDO(referenceTaskName: 'task0', taskId: 'task_id_0', status: TaskStatusDO.SCHEDULED, inputData: ['sink': sinkValue])
 
         when:
         event.start(workflow, task, null)
@@ -235,7 +235,7 @@ class EventSpec extends Specification {
         given:
         String sinkValue = 'conductor'
 
-        TaskDO task = new TaskDO(referenceTaskName: 'task0', taskId: 'task_id_0', status: Task.Status.SCHEDULED, inputData: ['sink': sinkValue])
+        TaskDO task = new TaskDO(referenceTaskName: 'task0', taskId: 'task_id_0', status: TaskStatusDO.SCHEDULED, inputData: ['sink': sinkValue])
 
         when:
         event.start(workflow, task, null)
@@ -254,7 +254,7 @@ class EventSpec extends Specification {
         given:
         String sinkValue = 'conductor'
 
-        TaskDO task = new TaskDO(referenceTaskName: 'task0', taskId: 'task_id_0', status: Task.Status.SCHEDULED, inputData: ['sink': sinkValue])
+        TaskDO task = new TaskDO(referenceTaskName: 'task0', taskId: 'task_id_0', status: TaskStatusDO.SCHEDULED, inputData: ['sink': sinkValue])
 
         when:
         event.start(workflow, task, null)
@@ -270,7 +270,7 @@ class EventSpec extends Specification {
         given:
         String sinkValue = 'conductor'
 
-        TaskDO task = new TaskDO(referenceTaskName: 'task0', taskId: 'task_id_0', status: Task.Status.SCHEDULED, inputData: ['sink': sinkValue])
+        TaskDO task = new TaskDO(referenceTaskName: 'task0', taskId: 'task_id_0', status: TaskStatusDO.SCHEDULED, inputData: ['sink': sinkValue])
 
         when:
         event.start(workflow, task, null)

@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.netflix.conductor.core.utils.ExternalPayloadStorageUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,12 +62,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ContextConfiguration(
         classes = {
@@ -82,6 +78,7 @@ public class TestDefaultEventProcessor {
     private ExecutionService executionService;
     private WorkflowExecutor workflowExecutor;
     private DomainMapper domainMapper;
+    private ExternalPayloadStorageUtils externalPayloadStorageUtils;
     private SimpleActionProcessor actionProcessor;
     private ParametersUtils parametersUtils;
     private JsonUtils jsonUtils;
@@ -104,7 +101,8 @@ public class TestDefaultEventProcessor {
         metadataService = mock(MetadataService.class);
         executionService = mock(ExecutionService.class);
         workflowExecutor = mock(WorkflowExecutor.class);
-        domainMapper = mock(DomainMapper.class);
+        externalPayloadStorageUtils = mock(ExternalPayloadStorageUtils.class);
+        domainMapper = new DomainMapper(externalPayloadStorageUtils);
         actionProcessor = mock(SimpleActionProcessor.class);
         parametersUtils = new ParametersUtils(objectMapper);
         jsonUtils = new JsonUtils(objectMapper);
@@ -193,6 +191,7 @@ public class TestDefaultEventProcessor {
         when(workflowExecutor.getWorkflow(
                         completeTaskAction.getComplete_task().getWorkflowId(), true))
                 .thenReturn(workflow);
+        doNothing().when(externalPayloadStorageUtils).verifyAndUpload(any(), any());
 
         SimpleActionProcessor actionProcessor =
                 new SimpleActionProcessor(
