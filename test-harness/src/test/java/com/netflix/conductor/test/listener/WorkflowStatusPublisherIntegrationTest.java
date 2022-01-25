@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.netflix.conductor.domain.WorkflowStatusDO;
+import com.netflix.conductor.model.WorkflowModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -194,7 +194,7 @@ public class WorkflowStatusPublisherIntegrationTest {
     private void checkIfWorkflowIsCompleted(String id) throws InterruptedException {
         int statusRetrieveAttempts = 0;
         while (workflowExecutor.getWorkflow(id, false).getStatus()
-                != WorkflowStatusDO.COMPLETED) {
+                != WorkflowModel.Status.COMPLETED) {
             if (statusRetrieveAttempts > 5) {
                 break;
             }

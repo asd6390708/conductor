@@ -22,9 +22,8 @@ import com.netflix.conductor.core.execution.tasks.WorkflowSystemTask;
 import com.netflix.conductor.core.utils.QueueUtils;
 import com.netflix.conductor.dao.MetadataDAO;
 import com.netflix.conductor.dao.QueueDAO;
-import com.netflix.conductor.domain.TaskDO;
-import com.netflix.conductor.domain.TaskStatusDO;
-import com.netflix.conductor.domain.WorkflowDO;
+import com.netflix.conductor.model.TaskModel;
+import com.netflix.conductor.model.WorkflowModel;
 import com.netflix.conductor.metrics.Monitors;
 
 @Component
@@ -59,11 +58,11 @@ public class AsyncSystemTaskExecutor {
      * Executes and persists the results of an async {@link WorkflowSystemTask}.
      *
      * @param systemTask The {@link WorkflowSystemTask} to be executed.
-     * @param taskId The id of the {@link TaskDO} object.
+     * @param taskId The id of the {@link TaskModel} object.
      */
     // TODO: external storage
     public void execute(WorkflowSystemTask systemTask, String taskId) {
-        TaskDO task = loadTaskQuietly(taskId);
+        TaskModel task = loadTaskQuietly(taskId);
         if (task == null) {
             LOGGER.error("TaskId: {} could not be found while executing {}", taskId, systemTask);
             return;
@@ -79,7 +78,7 @@ public class AsyncSystemTaskExecutor {
             return;
         }
 
-        if (task.getStatus().equals(TaskStatusDO.SCHEDULED)) {
+        if (task.getStatus().equals(TaskModel.Status.SCHEDULED)) {
             if (executionDAOFacade.exceedsInProgressLimit(task)) {
                 // TODO: add a metric to record this
                 LOGGER.warn(
@@ -105,7 +104,7 @@ public class AsyncSystemTaskExecutor {
         // if we are here the Task object is updated and needs to be persisted regardless of an
         // exception
         try {
-            WorkflowDO workflow = executionDAOFacade.getWorkflowDO(workflowId, true);
+            WorkflowModel workflow = executionDAOFacade.getWorkflowModel(workflowId, true);
 
             if (workflow.getStatus().isTerminal()) {
                 LOGGER.info(
@@ -114,7 +113,7 @@ public class AsyncSystemTaskExecutor {
                         systemTask,
                         task.getTaskId());
                 if (!task.getStatus().isTerminal()) {
-                    task.setStatus(TaskStatusDO.CANCELED);
+                    task.setStatus(TaskModel.Status.CANCELED);
                     task.setReasonForIncompletion(
                             String.format(
                                     "Workflow is in %s state", workflow.getStatus().toString()));
@@ -130,21 +129,21 @@ public class AsyncSystemTaskExecutor {
                     task.getStatus());
 
             boolean isTaskAsyncComplete = systemTask.isAsyncComplete(task);
-            if (task.getStatus() == TaskStatusDO.SCHEDULED || !isTaskAsyncComplete) {
+            if (task.getStatus() == TaskModel.Status.SCHEDULED || !isTaskAsyncComplete) {
                 task.incrementPollCount();
             }
 
-            if (task.getStatus() == TaskStatusDO.SCHEDULED) {
+            if (task.getStatus() == TaskModel.Status.SCHEDULED) {
                 task.setStartTime(System.currentTimeMillis());
                 Monitors.recordQueueWaitTime(task.getTaskDefName(), task.getQueueWaitTime());
                 systemTask.start(workflow, task, workflowExecutor);
-            } else if (task.getStatus() == TaskStatusDO.IN_PROGRESS) {
+            } else if (task.getStatus() == TaskModel.Status.IN_PROGRESS) {
                 systemTask.execute(workflow, task, workflowExecutor);
             }
 
             // Update message in Task queue based on Task status
             // Remove asyncComplete system tasks from the queue that are not in SCHEDULED state
-            if (isTaskAsyncComplete && task.getStatus() != TaskStatusDO.SCHEDULED) {
+            if (isTaskAsyncComplete && task.getStatus() != TaskModel.Status.SCHEDULED) {
                 queueDAO.remove(queueName, task.getTaskId());
                 hasTaskExecutionCompleted = true;
             } else if (task.getStatus().isTerminal()) {
@@ -179,7 +178,7 @@ public class AsyncSystemTaskExecutor {
         }
     }
 
-    private void postponeQuietly(String queueName, TaskDO task) {
+    private void postponeQuietly(String queueName, TaskModel task) {
         try {
             queueDAO.postpone(
                     queueName,
@@ -191,9 +190,9 @@ public class AsyncSystemTaskExecutor {
         }
     }
 
-    private TaskDO loadTaskQuietly(String taskId) {
+    private TaskModel loadTaskQuietly(String taskId) {
         try {
-            return executionDAOFacade.getTaskDO(taskId);
+            return executionDAOFacade.getTaskModel(taskId);
         } catch (Exception e) {
             return null;
         }

@@ -32,8 +32,7 @@ import com.netflix.conductor.dao.IndexDAO;
 import com.netflix.conductor.dao.PollDataDAO;
 import com.netflix.conductor.dao.QueueDAO;
 import com.netflix.conductor.dao.RateLimitingDAO;
-import com.netflix.conductor.domain.WorkflowDO;
-import com.netflix.conductor.domain.WorkflowStatusDO;
+import com.netflix.conductor.model.WorkflowModel;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -55,7 +54,7 @@ public class ExecutionDAOFacadeTest {
 
     private ExecutionDAO executionDAO;
     private IndexDAO indexDAO;
-    private DomainMapper domainMapper;
+    private ModelMapper modelMapper;
     private ExecutionDAOFacade executionDAOFacade;
 
     @Autowired private ObjectMapper objectMapper;
@@ -65,7 +64,7 @@ public class ExecutionDAOFacadeTest {
         executionDAO = mock(ExecutionDAO.class);
         QueueDAO queueDAO = mock(QueueDAO.class);
         indexDAO = mock(IndexDAO.class);
-        domainMapper = mock(DomainMapper.class);
+        modelMapper = mock(ModelMapper.class);
         RateLimitingDAO rateLimitingDao = mock(RateLimitingDAO.class);
         ConcurrentExecutionLimitDAO concurrentExecutionLimitDAO =
                 mock(ConcurrentExecutionLimitDAO.class);
@@ -81,7 +80,7 @@ public class ExecutionDAOFacadeTest {
                         rateLimitingDao,
                         concurrentExecutionLimitDAO,
                         pollDataDAO,
-                        domainMapper,
+                        modelMapper,
                         objectMapper,
                         properties);
     }
@@ -106,10 +105,10 @@ public class ExecutionDAOFacadeTest {
 
     @Test
     public void testGetWorkflow() throws Exception {
-        when(executionDAO.getWorkflow(any(), anyBoolean())).thenReturn(new WorkflowDO());
-        when(domainMapper.getWorkflowDO(any())).thenReturn(new WorkflowDO());
-        WorkflowDO workflowDO = executionDAOFacade.getWorkflowDO("workflowId", true);
-        assertNotNull(workflowDO);
+        when(executionDAO.getWorkflow(any(), anyBoolean())).thenReturn(new WorkflowModel());
+        when(modelMapper.getWorkflowModel(any())).thenReturn(new WorkflowModel());
+        WorkflowModel workflowModel = executionDAOFacade.getWorkflowModel("workflowId", true);
+        assertNotNull(workflowModel);
         verify(indexDAO, never()).get(any(), any());
 
         when(executionDAO.getWorkflow(any(), anyBoolean())).thenReturn(null);
@@ -117,8 +116,8 @@ public class ExecutionDAOFacadeTest {
         byte[] bytes = IOUtils.toByteArray(stream);
         String jsonString = new String(bytes);
         when(indexDAO.get(any(), any())).thenReturn(jsonString);
-        workflowDO = executionDAOFacade.getWorkflowDO("wokflowId", true);
-        assertNotNull(workflowDO);
+        workflowModel = executionDAOFacade.getWorkflowModel("wokflowId", true);
+        assertNotNull(workflowModel);
         verify(indexDAO, times(1)).get(any(), any());
     }
 
@@ -153,8 +152,8 @@ public class ExecutionDAOFacadeTest {
 
     @Test
     public void testRemoveWorkflow() {
-        WorkflowDO workflow = new WorkflowDO();
-        workflow.setStatus(WorkflowStatusDO.COMPLETED);
+        WorkflowModel workflow = new WorkflowModel();
+        workflow.setStatus(WorkflowModel.Status.COMPLETED);
         when(executionDAO.getWorkflow(anyString(), anyBoolean())).thenReturn(workflow);
         executionDAOFacade.removeWorkflow("workflowId", false);
         verify(indexDAO, never()).updateWorkflow(any(), any(), any());
@@ -164,7 +163,7 @@ public class ExecutionDAOFacadeTest {
     @Test
     public void testArchiveWorkflow() throws Exception {
         InputStream stream = TestDeciderService.class.getResourceAsStream("/completed.json");
-        WorkflowDO workflow = objectMapper.readValue(stream, WorkflowDO.class);
+        WorkflowModel workflow = objectMapper.readValue(stream, WorkflowModel.class);
 
         when(executionDAO.getWorkflow(anyString(), anyBoolean())).thenReturn(workflow);
         executionDAOFacade.removeWorkflow("workflowId", true);

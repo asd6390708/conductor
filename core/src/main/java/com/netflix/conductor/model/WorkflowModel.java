@@ -10,18 +10,48 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package com.netflix.conductor.domain;
+package com.netflix.conductor.model;
 
 import com.google.common.base.Preconditions;
 import com.netflix.conductor.common.metadata.workflow.WorkflowDef;
+import com.netflix.conductor.common.run.Workflow;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WorkflowDO {
+public class WorkflowModel {
 
-    private WorkflowStatusDO status = WorkflowStatusDO.RUNNING;
+    public enum Status {
+        RUNNING(false, false),
+        COMPLETED(true, true),
+        FAILED(true, false),
+        TIMED_OUT(true, false),
+        TERMINATED(true, false),
+        PAUSED(false, true);
+
+        private final boolean terminal;
+        private final boolean successful;
+
+        Status(boolean terminal, boolean successful) {
+            this.terminal = terminal;
+            this.successful = successful;
+        }
+
+        public boolean isTerminal() {
+            return terminal;
+        }
+
+        public boolean isSuccessful() {
+            return successful;
+        }
+
+        public static Workflow.WorkflowStatus getWorkflowStatusDTO(Status workflowStatusDO) {
+            return Workflow.WorkflowStatus.valueOf(workflowStatusDO.name());
+        }
+    }
+
+    private Status status = Status.RUNNING;
 
     private long endTime;
 
@@ -31,7 +61,7 @@ public class WorkflowDO {
 
     private String parentWorkflowTaskId;
 
-    private List<TaskDO> tasks = new LinkedList<>();
+    private List<TaskModel> tasks = new LinkedList<>();
 
     private Map<String, Object> input = new HashMap<>();
 
@@ -71,11 +101,11 @@ public class WorkflowDO {
 
     private String updatedBy;
 
-    public WorkflowStatusDO getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(WorkflowStatusDO status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -111,11 +141,11 @@ public class WorkflowDO {
         this.parentWorkflowTaskId = parentWorkflowTaskId;
     }
 
-    public List<TaskDO> getTasks() {
+    public List<TaskModel> getTasks() {
         return tasks;
     }
 
-    public void setTasks(List<TaskDO> tasks) {
+    public void setTasks(List<TaskModel> tasks) {
         this.tasks = tasks;
     }
 
@@ -314,13 +344,13 @@ public class WorkflowDO {
         return String.format("%s.%s/%s", name, version, workflowId);
     }
 
-    public TaskDO getTaskByRefName(String refName) {
+    public TaskModel getTaskByRefName(String refName) {
         if (refName == null) {
             throw new RuntimeException(
                     "refName passed is null.  Check the workflow execution.  For dynamic tasks, make sure referenceTaskName is set to a not null value");
         }
-        LinkedList<TaskDO> found = new LinkedList<>();
-        for (TaskDO task : tasks) {
+        LinkedList<TaskModel> found = new LinkedList<>();
+        for (TaskModel task : tasks) {
             if (task.getReferenceTaskName() == null) {
                 throw new RuntimeException(
                         "Task "
@@ -340,8 +370,8 @@ public class WorkflowDO {
     }
 
     /** @return a deep copy of the workflow instance */
-    public WorkflowDO copy() {
-        WorkflowDO copy = new WorkflowDO();
+    public WorkflowModel copy() {
+        WorkflowModel copy = new WorkflowModel();
         copy.setInput(input);
         copy.setOutput(output);
         copy.setStatus(status);
@@ -354,7 +384,7 @@ public class WorkflowDO {
         copy.setReasonForIncompletion(reasonForIncompletion);
         copy.setWorkflowDefinition(workflowDefinition);
         copy.setPriority(priority);
-        copy.setTasks(tasks.stream().map(TaskDO::deepCopy).collect(Collectors.toList()));
+        copy.setTasks(tasks.stream().map(TaskModel::deepCopy).collect(Collectors.toList()));
         copy.setVariables(variables);
         copy.setEndTime(endTime);
         copy.setLastRetriedTime(lastRetriedTime);
@@ -376,7 +406,7 @@ public class WorkflowDO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        WorkflowDO that = (WorkflowDO) o;
+        WorkflowModel that = (WorkflowModel) o;
         return getEndTime() == that.getEndTime()
                 && getPriority() == that.getPriority()
                 && getLastRetriedTime() == that.getLastRetriedTime()

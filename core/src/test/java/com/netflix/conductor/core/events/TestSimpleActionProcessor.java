@@ -21,13 +21,13 @@ import com.netflix.conductor.common.metadata.events.EventHandler.TaskDetails;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
 import com.netflix.conductor.common.metadata.tasks.TaskResult.Status;
 import com.netflix.conductor.common.metadata.workflow.WorkflowDef;
-import com.netflix.conductor.core.dal.DomainMapper;
+import com.netflix.conductor.core.dal.ModelMapper;
 import com.netflix.conductor.core.execution.WorkflowExecutor;
 import com.netflix.conductor.core.utils.ExternalPayloadStorageUtils;
 import com.netflix.conductor.core.utils.JsonUtils;
 import com.netflix.conductor.core.utils.ParametersUtils;
-import com.netflix.conductor.domain.TaskDO;
-import com.netflix.conductor.domain.WorkflowDO;
+import com.netflix.conductor.model.TaskModel;
+import com.netflix.conductor.model.WorkflowModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,12 +67,12 @@ public class TestSimpleActionProcessor {
         externalPayloadStorageUtils = mock(ExternalPayloadStorageUtils.class);
 
         workflowExecutor = mock(WorkflowExecutor.class);
-        DomainMapper domainMapper = new DomainMapper(externalPayloadStorageUtils);
+        ModelMapper modelMapper = new ModelMapper(externalPayloadStorageUtils);
 
         actionProcessor =
                 new SimpleActionProcessor(
                         workflowExecutor,
-                        domainMapper,
+                        modelMapper,
                         new ParametersUtils(objectMapper),
                         new JsonUtils(objectMapper));
     }
@@ -209,9 +209,9 @@ public class TestSimpleActionProcessor {
                 "{\"workflowId\":\"workflow_1\",\"Message\":{\"someKey\":\"someData\",\"someNullKey\":null}}";
         Object payload = objectMapper.readValue(payloadJson, Object.class);
 
-        TaskDO task = new TaskDO();
+        TaskModel task = new TaskModel();
         task.setReferenceTaskName("testTask");
-        WorkflowDO workflow = new WorkflowDO();
+        WorkflowModel workflow = new WorkflowModel();
         workflow.getTasks().add(task);
 
         when(workflowExecutor.getWorkflow(eq("workflow_1"), anyBoolean())).thenReturn(workflow);
@@ -252,7 +252,7 @@ public class TestSimpleActionProcessor {
                 objectMapper.readValue(
                         "{\"workflowId\":\"workflow_1\", \"taskId\":\"task_1\"}", Object.class);
 
-        TaskDO task = new TaskDO();
+        TaskModel task = new TaskModel();
         task.setTaskId("task_1");
         task.setReferenceTaskName("testTask");
 
