@@ -30,7 +30,8 @@ public class TerminateWorkflowException extends RuntimeException {
         this(reason, workflowStatus, null);
     }
 
-    public TerminateWorkflowException(String reason, WorkflowModel.Status workflowStatus, TaskModel task) {
+    public TerminateWorkflowException(
+            String reason, WorkflowModel.Status workflowStatus, TaskModel task) {
         super(reason);
         this.workflowStatus = workflowStatus;
         this.task = task;

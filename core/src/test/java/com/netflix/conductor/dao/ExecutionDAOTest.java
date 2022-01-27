@@ -235,7 +235,8 @@ public abstract class ExecutionDAOTest {
             getExecutionDAO().updateTask(found);
         }
 
-        List<String> taskIds = tasks.stream().map(TaskModel::getTaskId).collect(Collectors.toList());
+        List<String> taskIds =
+                tasks.stream().map(TaskModel::getTaskId).collect(Collectors.toList());
         List<TaskModel> found = getExecutionDAO().getTasks(taskIds);
         assertEquals(taskIds.size(), found.size());
         found.forEach(

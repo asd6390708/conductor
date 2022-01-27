@@ -40,9 +40,9 @@ import com.netflix.conductor.core.events.queue.Message;
 import com.netflix.conductor.core.exception.ApplicationException;
 import com.netflix.conductor.core.exception.ApplicationException.Code;
 import com.netflix.conductor.dao.*;
+import com.netflix.conductor.metrics.Monitors;
 import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.model.WorkflowModel;
-import com.netflix.conductor.metrics.Monitors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -129,7 +129,7 @@ public class ExecutionDAOFacade {
     }
 
     public WorkflowModel getWorkflowModel(String workflowId, boolean includeTasks) {
-        return modelMapper.getWorkflowModel(getWorkflowFromDatastore(workflowId, includeTasks));
+        return modelMapper.getFullCopy(getWorkflowFromDatastore(workflowId, includeTasks));
     }
 
     /**
@@ -254,8 +254,7 @@ public class ExecutionDAOFacade {
                 leanWorkflow.getPriority(),
                 properties.getWorkflowOffsetTimeout().getSeconds());
         if (properties.isAsyncIndexingEnabled()) {
-            indexDAO.asyncIndexWorkflow(
-                    new WorkflowSummary(modelMapper.getWorkflow(leanWorkflow)));
+            indexDAO.asyncIndexWorkflow(new WorkflowSummary(modelMapper.getWorkflow(leanWorkflow)));
         } else {
             indexDAO.indexWorkflow(new WorkflowSummary(modelMapper.getWorkflow(leanWorkflow)));
         }
@@ -430,7 +429,7 @@ public class ExecutionDAOFacade {
     }
 
     public TaskModel getTaskModel(String taskId) {
-        return modelMapper.getTaskModel(getTaskFromDatastore(taskId));
+        return modelMapper.getFullCopy(getTaskFromDatastore(taskId));
     }
 
     public Task getTask(String taskId) {
@@ -627,8 +626,7 @@ public class ExecutionDAOFacade {
         public void run() {
             try {
                 WorkflowModel workflow = executionDAO.getWorkflow(workflowId, false);
-                indexDAO.asyncIndexWorkflow(
-                        new WorkflowSummary(modelMapper.getWorkflow(workflow)));
+                indexDAO.asyncIndexWorkflow(new WorkflowSummary(modelMapper.getWorkflow(workflow)));
             } catch (Exception e) {
                 LOGGER.error("Unable to update workflow: {}", workflowId, e);
             }

@@ -12,13 +12,14 @@
  */
 package com.netflix.conductor.model;
 
-import com.google.common.base.Preconditions;
-import com.netflix.conductor.common.metadata.workflow.WorkflowDef;
-import com.netflix.conductor.common.run.Workflow;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.netflix.conductor.common.metadata.workflow.WorkflowDef;
+
+import com.google.common.base.Preconditions;
 
 public class WorkflowModel {
 
@@ -44,10 +45,6 @@ public class WorkflowModel {
 
         public boolean isSuccessful() {
             return successful;
-        }
-
-        public static Workflow.WorkflowStatus getWorkflowStatusDTO(Status workflowStatusDO) {
-            return Workflow.WorkflowStatus.valueOf(workflowStatusDO.name());
         }
     }
 

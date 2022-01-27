@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import com.netflix.conductor.common.metadata.tasks.Task;
@@ -25,9 +26,9 @@ import com.netflix.conductor.common.run.Workflow;
 import com.netflix.conductor.common.utils.ExternalPayloadStorage.Operation;
 import com.netflix.conductor.common.utils.ExternalPayloadStorage.PayloadType;
 import com.netflix.conductor.core.utils.ExternalPayloadStorageUtils;
+import com.netflix.conductor.metrics.Monitors;
 import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.model.WorkflowModel;
-import com.netflix.conductor.metrics.Monitors;
 
 @Component
 public class ModelMapper {
@@ -46,109 +47,77 @@ public class ModelMapper {
      * @param workflowModel the workflow domain object from the datastore
      * @return the workflow domain object {@link WorkflowModel} with payloads from external storage
      */
-    public WorkflowModel getWorkflowModel(WorkflowModel workflowModel) {
+    public WorkflowModel getFullCopy(WorkflowModel workflowModel) {
         populateWorkflowAndTaskPayloadData(workflowModel);
         return workflowModel;
     }
 
+    /**
+     * Get a lean copy of the workflow domain object with large payloads externalized
+     *
+     * @param workflowModel the fully formed workflow domain object
+     * @return the workflow domain object {@link WorkflowModel} with large payloads externalized
+     */
     public WorkflowModel getLeanCopy(WorkflowModel workflowModel) {
         WorkflowModel leanWorkflowModel = workflowModel.copy();
         externalizeWorkflowData(leanWorkflowModel);
+        workflowModel.getTasks().forEach(this::getLeanCopy);
         return leanWorkflowModel;
     }
 
+    /**
+     * Map the workflow domain object to the workflow DTO
+     *
+     * @param workflowModel the workflow domain object {@link WorkflowModel}
+     * @return the workflow DTO {@link Workflow}
+     */
     public Workflow getWorkflow(WorkflowModel workflowModel) {
         externalizeWorkflowData(workflowModel);
 
         Workflow workflow = new Workflow();
-        workflow.setStatus(WorkflowModel.Status.getWorkflowStatusDTO(workflowModel.getStatus()));
-        workflow.setEndTime(workflowModel.getEndTime());
-        workflow.setWorkflowId(workflowModel.getWorkflowId());
-        workflow.setParentWorkflowId(workflowModel.getParentWorkflowId());
-        workflow.setParentWorkflowTaskId(workflowModel.getParentWorkflowTaskId());
-        workflow.setInput(workflowModel.getInput());
-        workflow.setOutput(workflowModel.getOutput());
-        workflow.setCorrelationId(workflow.getCorrelationId());
-        workflow.setReRunFromWorkflowId(workflowModel.getReRunFromWorkflowId());
-        workflow.setReasonForIncompletion(workflowModel.getReasonForIncompletion());
-        workflow.setEvent(workflowModel.getEvent());
-        workflow.setTaskToDomain(workflowModel.getTaskToDomain());
-        workflow.setFailedReferenceTaskNames(workflowModel.getFailedReferenceTaskNames());
-        workflow.setWorkflowDefinition(workflowModel.getWorkflowDefinition());
-        workflow.setExternalInputPayloadStoragePath(
-                workflowModel.getExternalInputPayloadStoragePath());
-        workflow.setExternalOutputPayloadStoragePath(
-                workflowModel.getExternalOutputPayloadStoragePath());
-        workflow.setPriority(workflowModel.getPriority());
-        workflow.setVariables(workflowModel.getVariables());
-        workflow.setLastRetriedTime(workflowModel.getLastRetriedTime());
-        workflow.setOwnerApp(workflowModel.getOwnerApp());
-        workflow.setCreateTime(workflowModel.getCreatedTime());
-        workflow.setUpdateTime(workflowModel.getUpdatedTime());
-        workflow.setCreatedBy(workflowModel.getCreatedBy());
-        workflow.setUpdatedBy(workflowModel.getUpdatedBy());
-
+        BeanUtils.copyProperties(workflowModel, workflow);
+        workflow.setStatus(Workflow.WorkflowStatus.valueOf(workflowModel.getStatus().name()));
         workflow.setTasks(
                 workflowModel.getTasks().stream().map(this::getTask).collect(Collectors.toList()));
 
         return workflow;
     }
 
-    public TaskModel getTaskModel(TaskModel taskModel) {
+    /**
+     * Fetch the fully formed task domain object with complete payloads
+     *
+     * @param taskModel the task domain object from the datastore
+     * @return the task domain object {@link TaskModel} with payloads from external storage
+     */
+    public TaskModel getFullCopy(TaskModel taskModel) {
         populateTaskData(taskModel);
         return taskModel;
     }
 
+    /**
+     * Get a lean copy of the task domain object with large payloads externalized
+     *
+     * @param taskModel the fully formed task domain object
+     * @return the task domain object {@link TaskModel} with large payloads externalized
+     */
     public TaskModel getLeanCopy(TaskModel taskModel) {
         TaskModel leanTaskModel = taskModel.copy();
         externalizeTaskData(leanTaskModel);
         return leanTaskModel;
     }
 
+    /**
+     * Map the task domain object to the task DTO
+     *
+     * @param taskModel the task domain object {@link TaskModel}
+     * @return the task DTO {@link Task}
+     */
     public Task getTask(TaskModel taskModel) {
         externalizeTaskData(taskModel);
 
         Task task = new Task();
-        task.setTaskType(taskModel.getTaskType());
-        task.setStatus(TaskModel.Status.getTaskStatusDTO(taskModel.getStatus()));
-        task.setInputData(taskModel.getInputData());
-        task.setReferenceTaskName(taskModel.getReferenceTaskName());
-        task.setRetryCount(taskModel.getRetryCount());
-        task.setSeq(taskModel.getSeq());
-        task.setCorrelationId(taskModel.getCorrelationId());
-        task.setPollCount(taskModel.getPollCount());
-        task.setTaskDefName(taskModel.getTaskDefName());
-        task.setScheduledTime(taskModel.getScheduledTime());
-        task.setStartTime(taskModel.getStartTime());
-        task.setEndTime(taskModel.getEndTime());
-        task.setUpdateTime(taskModel.getUpdateTime());
-        task.setStartDelayInSeconds(taskModel.getStartDelayInSeconds());
-        task.setRetriedTaskId(taskModel.getRetriedTaskId());
-        task.setRetried(taskModel.isRetried());
-        task.setExecuted(taskModel.isExecuted());
-        task.setCallbackFromWorker(taskModel.isCallbackFromWorker());
-        task.setResponseTimeoutSeconds(taskModel.getResponseTimeoutSeconds());
-        task.setWorkflowInstanceId(taskModel.getWorkflowInstanceId());
-        task.setWorkflowType(taskModel.getWorkflowType());
-        task.setTaskId(taskModel.getTaskId());
-        task.setReasonForIncompletion(taskModel.getReasonForIncompletion());
-        task.setCallbackAfterSeconds(taskModel.getCallbackAfterSeconds());
-        task.setWorkerId(taskModel.getWorkerId());
-        task.setOutputData(taskModel.getOutputData());
-        task.setWorkflowTask(taskModel.getWorkflowTask());
-        task.setDomain(taskModel.getDomain());
-        task.setInputMessage(taskModel.getInputMessage());
-        task.setOutputMessage(taskModel.getOutputMessage());
-        task.setRateLimitPerFrequency(taskModel.getRateLimitPerFrequency());
-        task.setRateLimitFrequencyInSeconds(taskModel.getRateLimitFrequencyInSeconds());
-        task.setExternalInputPayloadStoragePath(taskModel.getExternalInputPayloadStoragePath());
-        task.setExternalOutputPayloadStoragePath(taskModel.getExternalOutputPayloadStoragePath());
-        task.setWorkflowPriority(taskModel.getWorkflowPriority());
-        task.setExecutionNameSpace(taskModel.getExecutionNameSpace());
-        task.setIsolationGroupId(taskModel.getIsolationGroupId());
-        task.setIteration(taskModel.getIteration());
-        task.setSubWorkflowId(taskModel.getSubWorkflowId());
-        task.setSubworkflowChanged(taskModel.isSubworkflowChanged());
+        BeanUtils.copyProperties(taskModel, task);
+        task.setStatus(Task.Status.valueOf(taskModel.getStatus().name()));
         return task;
     }
 
@@ -170,6 +139,18 @@ public class ModelMapper {
                     PayloadType.WORKFLOW_INPUT.toString());
             workflowModel.setInput(workflowInputParams);
             workflowModel.setExternalInputPayloadStoragePath(null);
+        }
+
+        if (StringUtils.isNotBlank(workflowModel.getExternalOutputPayloadStoragePath())) {
+            Map<String, Object> workflowOutputParams =
+                    externalPayloadStorageUtils.downloadPayload(
+                            workflowModel.getExternalOutputPayloadStoragePath());
+            Monitors.recordExternalPayloadStorageUsage(
+                    workflowModel.getWorkflowName(),
+                    Operation.READ.toString(),
+                    PayloadType.WORKFLOW_OUTPUT.toString());
+            workflowModel.setOutput(workflowOutputParams);
+            workflowModel.setExternalOutputPayloadStoragePath(null);
         }
 
         workflowModel.getTasks().forEach(this::populateTaskData);

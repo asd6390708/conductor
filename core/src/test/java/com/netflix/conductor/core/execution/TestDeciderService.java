@@ -801,15 +801,18 @@ public class TestDeciderService {
         Optional<TaskModel> task2 = deciderService.retry(taskDef, workflowTask, task, workflow);
         assertEquals(60, task2.get().getCallbackAfterSeconds());
 
-        Optional<TaskModel> task3 = deciderService.retry(taskDef, workflowTask, task2.get(), workflow);
+        Optional<TaskModel> task3 =
+                deciderService.retry(taskDef, workflowTask, task2.get(), workflow);
         assertEquals(120, task3.get().getCallbackAfterSeconds());
 
-        Optional<TaskModel> task4 = deciderService.retry(taskDef, workflowTask, task3.get(), workflow);
+        Optional<TaskModel> task4 =
+                deciderService.retry(taskDef, workflowTask, task3.get(), workflow);
         assertEquals(240, task4.get().getCallbackAfterSeconds());
 
         taskDef.setRetryCount(Integer.MAX_VALUE);
         task4.get().setRetryCount(Integer.MAX_VALUE - 100);
-        Optional<TaskModel> task5 = deciderService.retry(taskDef, workflowTask, task4.get(), workflow);
+        Optional<TaskModel> task5 =
+                deciderService.retry(taskDef, workflowTask, task4.get(), workflow);
         assertEquals(Integer.MAX_VALUE, task5.get().getCallbackAfterSeconds());
     }
 

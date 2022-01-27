@@ -28,9 +28,9 @@ import com.netflix.conductor.dao.ConcurrentExecutionLimitDAO;
 import com.netflix.conductor.dao.ExecutionDAO;
 import com.netflix.conductor.dao.PollDataDAO;
 import com.netflix.conductor.dao.RateLimitingDAO;
+import com.netflix.conductor.metrics.Monitors;
 import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.model.WorkflowModel;
-import com.netflix.conductor.metrics.Monitors;
 import com.netflix.conductor.mysql.util.Query;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -393,7 +393,8 @@ public class MySQLExecutionDAO extends MySQLBaseDAO
     }
 
     @Override
-    public List<WorkflowModel> getWorkflowsByType(String workflowName, Long startTime, Long endTime) {
+    public List<WorkflowModel> getWorkflowsByType(
+            String workflowName, Long startTime, Long endTime) {
         Preconditions.checkNotNull(workflowName, "workflowName cannot be null");
         Preconditions.checkNotNull(startTime, "startTime cannot be null");
         Preconditions.checkNotNull(endTime, "endTime cannot be null");
@@ -621,7 +622,8 @@ public class MySQLExecutionDAO extends MySQLBaseDAO
 
         if (taskDefinition.isPresent() && taskDefinition.get().concurrencyLimit() > 0) {
             boolean inProgress =
-                    task.getStatus() != null && task.getStatus().equals(TaskModel.Status.IN_PROGRESS);
+                    task.getStatus() != null
+                            && task.getStatus().equals(TaskModel.Status.IN_PROGRESS);
             updateInProgressStatus(connection, task, inProgress);
         }
 

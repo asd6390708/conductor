@@ -85,7 +85,7 @@ public class ExecutionDAOFacadeTest {
                         properties);
     }
 
-    //TODO: fix test
+    // TODO: fix test
     //    @Test
     //    public void tesGetWorkflowById() throws Exception {
     //        when(executionDAO.getWorkflow(any(), anyBoolean())).thenReturn(new Workflow());
@@ -106,7 +106,7 @@ public class ExecutionDAOFacadeTest {
     @Test
     public void testGetWorkflow() throws Exception {
         when(executionDAO.getWorkflow(any(), anyBoolean())).thenReturn(new WorkflowModel());
-        when(modelMapper.getWorkflowModel(any())).thenReturn(new WorkflowModel());
+        when(modelMapper.getFullCopy(any(WorkflowModel.class))).thenReturn(new WorkflowModel());
         WorkflowModel workflowModel = executionDAOFacade.getWorkflowModel("workflowId", true);
         assertNotNull(workflowModel);
         verify(indexDAO, never()).get(any(), any());

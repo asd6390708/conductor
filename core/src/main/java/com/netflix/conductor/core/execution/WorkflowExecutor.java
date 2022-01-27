@@ -47,9 +47,9 @@ import com.netflix.conductor.core.utils.QueueUtils;
 import com.netflix.conductor.core.utils.Utils;
 import com.netflix.conductor.dao.MetadataDAO;
 import com.netflix.conductor.dao.QueueDAO;
+import com.netflix.conductor.metrics.Monitors;
 import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.model.WorkflowModel;
-import com.netflix.conductor.metrics.Monitors;
 import com.netflix.conductor.service.ExecutionLockService;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -650,7 +650,8 @@ public class WorkflowExecutor {
 
             // push the parent workflow to decider queue for asynchronous 'decide'
             String parentWorkflowId = workflow.getParentWorkflowId();
-            WorkflowModel parentWorkflow = executionDAOFacade.getWorkflowModel(parentWorkflowId, true);
+            WorkflowModel parentWorkflow =
+                    executionDAOFacade.getWorkflowModel(parentWorkflowId, true);
             parentWorkflow.setStatus(WorkflowModel.Status.RUNNING);
             parentWorkflow.setLastRetriedTime(System.currentTimeMillis());
             executionDAOFacade.updateWorkflow(parentWorkflow);
@@ -727,7 +728,8 @@ public class WorkflowExecutor {
         scheduleTask(workflow, retriableTasks);
     }
 
-    private WorkflowModel findLastFailedSubWorkflowIfAny(TaskModel task, WorkflowModel parentWorkflow) {
+    private WorkflowModel findLastFailedSubWorkflowIfAny(
+            TaskModel task, WorkflowModel parentWorkflow) {
         if (TaskType.TASK_TYPE_SUB_WORKFLOW.equals(task.getTaskType())
                 && UNSUCCESSFUL_TERMINAL_TASK.test(task)) {
             WorkflowModel subWorkflow =
@@ -1972,7 +1974,8 @@ public class WorkflowExecutor {
         executionDAOFacade.updateTask(subWorkflowTask);
     }
 
-    private void executeSubworkflowTaskAndSyncData(WorkflowModel subWorkflow, TaskModel subWorkflowTask) {
+    private void executeSubworkflowTaskAndSyncData(
+            WorkflowModel subWorkflow, TaskModel subWorkflowTask) {
         WorkflowSystemTask subWorkflowSystemTask =
                 systemTaskRegistry.get(TaskType.TASK_TYPE_SUB_WORKFLOW);
         subWorkflowSystemTask.execute(subWorkflow, subWorkflowTask, this);

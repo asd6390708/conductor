@@ -23,8 +23,8 @@ import org.springframework.stereotype.Component;
 import com.netflix.conductor.common.metadata.tasks.TaskDef;
 import com.netflix.conductor.core.config.ConductorProperties;
 import com.netflix.conductor.dao.RateLimitingDAO;
-import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.metrics.Monitors;
+import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.redis.config.AnyRedisCondition;
 import com.netflix.conductor.redis.config.RedisProperties;
 import com.netflix.conductor.redis.jedis.JedisProxy;
@@ -49,8 +49,8 @@ public class RedisRateLimitingDAO extends BaseDynoDAO implements RateLimitingDAO
 
     /**
      * This method evaluates if the {@link TaskDef} is rate limited or not based on {@link
-     * TaskModel#getRateLimitPerFrequency()} and {@link TaskModel#getRateLimitFrequencyInSeconds()} if not
-     * checks the {@link TaskModel} is rate limited or not based on {@link
+     * TaskModel#getRateLimitPerFrequency()} and {@link TaskModel#getRateLimitFrequencyInSeconds()}
+     * if not checks the {@link TaskModel} is rate limited or not based on {@link
      * TaskModel#getRateLimitPerFrequency()} and {@link TaskModel#getRateLimitFrequencyInSeconds()}
      *
      * <p>The rate limiting is implemented using the Redis constructs of sorted set and TTL of each
@@ -62,11 +62,11 @@ public class RedisRateLimitingDAO extends BaseDynoDAO implements RateLimitingDAO
      *       make the next step of evaluation efficient
      *   <li>A current count(tasks executed within the frequency) is calculated based on the current
      *       time and the beginning of the rate limit frequency time(which is current time - {@link
-     *       TaskModel#getRateLimitFrequencyInSeconds()} in millis), this is achieved by using {@link
-     *       JedisProxy#zcount(String, double, double)}
+     *       TaskModel#getRateLimitFrequencyInSeconds()} in millis), this is achieved by using
+     *       {@link JedisProxy#zcount(String, double, double)}
      *   <li>Once the count is calculated then a evaluation is made to determine if it is within the
-     *       bounds of {@link TaskModel#getRateLimitPerFrequency()}, if so the count is increased and
-     *       an expiry TTL is added to the entry
+     *       bounds of {@link TaskModel#getRateLimitPerFrequency()}, if so the count is increased
+     *       and an expiry TTL is added to the entry
      * </ul>
      *
      * @param task: which needs to be evaluated whether it is rateLimited or not

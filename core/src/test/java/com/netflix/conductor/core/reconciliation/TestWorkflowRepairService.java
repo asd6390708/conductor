@@ -14,12 +14,12 @@ package com.netflix.conductor.core.reconciliation;
 
 import java.time.Duration;
 
-import com.netflix.conductor.core.execution.tasks.*;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.netflix.conductor.core.config.ConductorProperties;
 import com.netflix.conductor.core.execution.WorkflowExecutor;
+import com.netflix.conductor.core.execution.tasks.*;
 import com.netflix.conductor.dao.ExecutionDAO;
 import com.netflix.conductor.dao.QueueDAO;
 import com.netflix.conductor.model.TaskModel;
@@ -115,7 +115,9 @@ public class TestWorkflowRepairService {
 
                             @Override
                             public void start(
-                                    WorkflowModel workflow, TaskModel task, WorkflowExecutor executor) {
+                                    WorkflowModel workflow,
+                                    TaskModel task,
+                                    WorkflowExecutor executor) {
                                 super.start(workflow, task, executor);
                             }
                         });

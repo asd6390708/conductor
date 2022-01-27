@@ -129,7 +129,8 @@ public class TestWorkflowExecutor {
                 }
 
                 @Override
-                public void start(WorkflowModel workflow, TaskModel task, WorkflowExecutor executor) {
+                public void start(
+                        WorkflowModel workflow, TaskModel task, WorkflowExecutor executor) {
                     task.setStatus(TaskModel.Status.COMPLETED);
                 }
             };
@@ -1139,12 +1140,14 @@ public class TestWorkflowExecutor {
         workflow.setWorkflowDefinition(workflowDef);
 
         // when
-        when(executionDAOFacade.getWorkflowModel(workflow.getWorkflowId(), true)).thenReturn(workflow);
+        when(executionDAOFacade.getWorkflowModel(workflow.getWorkflowId(), true))
+                .thenReturn(workflow);
         when(executionDAOFacade.getWorkflowModel(task.getSubWorkflowId(), true))
                 .thenReturn(subWorkflow);
         when(metadataDAO.getWorkflowDef(anyString(), anyInt()))
                 .thenReturn(Optional.of(workflowDef));
-        when(executionDAOFacade.getTaskModel(subWorkflow.getParentWorkflowTaskId())).thenReturn(task1);
+        when(executionDAOFacade.getTaskModel(subWorkflow.getParentWorkflowTaskId()))
+                .thenReturn(task1);
         when(executionDAOFacade.getWorkflowModel(subWorkflow.getParentWorkflowId(), false))
                 .thenReturn(workflow);
 
@@ -1354,10 +1357,12 @@ public class TestWorkflowExecutor {
         // end of setup
 
         // when:
-        when(executionDAOFacade.getWorkflowModel(workflow.getWorkflowId(), true)).thenReturn(workflow);
+        when(executionDAOFacade.getWorkflowModel(workflow.getWorkflowId(), true))
+                .thenReturn(workflow);
         when(executionDAOFacade.getWorkflowModel(task.getSubWorkflowId(), true))
                 .thenReturn(subWorkflow);
-        when(executionDAOFacade.getTaskModel(subWorkflow.getParentWorkflowTaskId())).thenReturn(task);
+        when(executionDAOFacade.getTaskModel(subWorkflow.getParentWorkflowTaskId()))
+                .thenReturn(task);
         when(executionDAOFacade.getWorkflowModel(subWorkflow.getParentWorkflowId(), false))
                 .thenReturn(workflow);
 
@@ -1478,7 +1483,8 @@ public class TestWorkflowExecutor {
         // end of setup
 
         // when:
-        when(executionDAOFacade.getWorkflowModel(workflow.getWorkflowId(), true)).thenReturn(workflow);
+        when(executionDAOFacade.getWorkflowModel(workflow.getWorkflowId(), true))
+                .thenReturn(workflow);
         RerunWorkflowRequest rerunWorkflowRequest = new RerunWorkflowRequest();
         rerunWorkflowRequest.setReRunFromWorkflowId(workflow.getWorkflowId());
         rerunWorkflowRequest.setReRunFromTaskId(task2.getTaskId());
@@ -1553,10 +1559,12 @@ public class TestWorkflowExecutor {
         // end of setup
 
         // when:
-        when(executionDAOFacade.getWorkflowModel(workflow.getWorkflowId(), true)).thenReturn(workflow);
+        when(executionDAOFacade.getWorkflowModel(workflow.getWorkflowId(), true))
+                .thenReturn(workflow);
         when(executionDAOFacade.getWorkflowModel(task.getSubWorkflowId(), true))
                 .thenReturn(subWorkflow);
-        when(executionDAOFacade.getTaskModel(subWorkflow.getParentWorkflowTaskId())).thenReturn(task);
+        when(executionDAOFacade.getTaskModel(subWorkflow.getParentWorkflowTaskId()))
+                .thenReturn(task);
         when(executionDAOFacade.getWorkflowModel(subWorkflow.getParentWorkflowId(), false))
                 .thenReturn(workflow);
 

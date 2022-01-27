@@ -54,8 +54,8 @@ public class HTTPTaskMapper implements TaskMapper {
     }
 
     /**
-     * This method maps a {@link WorkflowTask} of type {@link TaskType#HTTP} to a {@link TaskModel} in
-     * a {@link TaskModel.Status#SCHEDULED} state
+     * This method maps a {@link WorkflowTask} of type {@link TaskType#HTTP} to a {@link TaskModel}
+     * in a {@link TaskModel.Status#SCHEDULED} state
      *
      * @param taskMapperContext: A wrapper class containing the {@link WorkflowTask}, {@link
      *     WorkflowDef}, {@link WorkflowModel} and a string representation of the TaskId

@@ -39,8 +39,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Tests the {@link Event#getQueue(WorkflowModel, TaskModel)} method with a real {@link ParametersUtils}
- * object.
+ * Tests the {@link Event#getQueue(WorkflowModel, TaskModel)} method with a real {@link
+ * ParametersUtils} object.
  */
 @ContextConfiguration(classes = {TestObjectMapperConfiguration.class})
 @RunWith(SpringRunner.class)

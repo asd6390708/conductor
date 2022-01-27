@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import com.netflix.conductor.core.dal.ExecutionDAOFacade;
 import com.netflix.conductor.core.listener.WorkflowStatusListener;
-import com.netflix.conductor.model.WorkflowModel;
 import com.netflix.conductor.metrics.Monitors;
+import com.netflix.conductor.model.WorkflowModel;
 
 /**
  * Provides default implementation of workflow archiving immediately after workflow is completed or

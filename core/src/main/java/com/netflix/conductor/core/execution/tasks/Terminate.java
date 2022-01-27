@@ -66,7 +66,8 @@ public class Terminate extends WorkflowSystemTask {
     }
 
     @Override
-    public boolean execute(WorkflowModel workflow, TaskModel task, WorkflowExecutor workflowExecutor) {
+    public boolean execute(
+            WorkflowModel workflow, TaskModel task, WorkflowExecutor workflowExecutor) {
         String returnStatus = (String) task.getInputData().get(TERMINATION_STATUS_PARAMETER);
 
         if (validateInputStatus(returnStatus)) {

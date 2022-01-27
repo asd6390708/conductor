@@ -170,7 +170,9 @@ public class ForkJoinDynamicTaskMapper implements TaskMapper {
                                         runningTask ->
                                                 runningTask
                                                                 .getStatus()
-                                                                .equals(TaskModel.Status.IN_PROGRESS)
+                                                                .equals(
+                                                                        TaskModel.Status
+                                                                                .IN_PROGRESS)
                                                         || runningTask.getStatus().isTerminal())
                                 .map(TaskModel::getReferenceTaskName)
                                 .filter(
@@ -231,8 +233,8 @@ public class ForkJoinDynamicTaskMapper implements TaskMapper {
      * "forkedTaskDefs" and their names keyed by "forkedTasks" into {@link TaskModel#getInputData()}
      *
      * @param taskToSchedule A {@link WorkflowTask} representing {@link TaskType#FORK_JOIN_DYNAMIC}
-     * @param workflowInstance: A instance of the {@link WorkflowModel} which represents the workflow
-     *     being executed.
+     * @param workflowInstance: A instance of the {@link WorkflowModel} which represents the
+     *     workflow being executed.
      * @param taskId: The string representation of {@link java.util.UUID} which will be set as the
      *     taskId.
      * @param dynForkTasks: The list of dynamic forked tasks, the reference names of these tasks
@@ -275,8 +277,8 @@ public class ForkJoinDynamicTaskMapper implements TaskMapper {
      * this#getMappedTasks(TaskMapperContext)} at the end to add a join task to be scheduled after
      * all the fork tasks
      *
-     * @param workflowInstance: A instance of the {@link WorkflowModel} which represents the workflow
-     *     being executed.
+     * @param workflowInstance: A instance of the {@link WorkflowModel} which represents the
+     *     workflow being executed.
      * @param joinWorkflowTask: A instance of {@link WorkflowTask} which is of type {@link
      *     TaskType#JOIN}
      * @param joinInput: The input which is set in the {@link TaskModel#setInputData(Map)}
@@ -309,8 +311,8 @@ public class ForkJoinDynamicTaskMapper implements TaskMapper {
      *
      * @param taskToSchedule: The Task of type FORK_JOIN_DYNAMIC that needs to scheduled, which has
      *     the input parameters
-     * @param workflowInstance: The instance of the {@link WorkflowModel} which represents the workflow
-     *     being executed.
+     * @param workflowInstance: The instance of the {@link WorkflowModel} which represents the
+     *     workflow being executed.
      * @param dynamicForkTaskParam: The key representing the dynamic fork join json payload which is
      *     available in {@link WorkflowTask#getInputParameters()}
      * @return a {@link Pair} representing the list of dynamic fork tasks in {@link Pair#getLeft()}
@@ -321,7 +323,9 @@ public class ForkJoinDynamicTaskMapper implements TaskMapper {
     @SuppressWarnings("unchecked")
     @VisibleForTesting
     Pair<List<WorkflowTask>, Map<String, Map<String, Object>>> getDynamicForkTasksAndInput(
-            WorkflowTask taskToSchedule, WorkflowModel workflowInstance, String dynamicForkTaskParam)
+            WorkflowTask taskToSchedule,
+            WorkflowModel workflowInstance,
+            String dynamicForkTaskParam)
             throws TerminateWorkflowException {
 
         Map<String, Object> input =
@@ -359,8 +363,8 @@ public class ForkJoinDynamicTaskMapper implements TaskMapper {
      *
      * @param taskToSchedule: The Task of type FORK_JOIN_DYNAMIC that needs to scheduled, which has
      *     the input parameters
-     * @param workflowInstance: The instance of the {@link WorkflowModel} which represents the workflow
-     *     being executed.
+     * @param workflowInstance: The instance of the {@link WorkflowModel} which represents the
+     *     workflow being executed.
      * @return {@link Pair} representing the list of dynamic fork tasks in {@link Pair#getLeft()}
      *     and the input for the dynamic fork tasks in {@link Pair#getRight()}
      * @throws TerminateWorkflowException : In case of the {@link WorkflowTask#getInputParameters()}

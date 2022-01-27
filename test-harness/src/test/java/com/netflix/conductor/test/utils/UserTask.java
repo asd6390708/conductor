@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.netflix.conductor.model.TaskModel;
-import com.netflix.conductor.model.WorkflowModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +25,8 @@ import org.springframework.stereotype.Component;
 
 import com.netflix.conductor.core.execution.WorkflowExecutor;
 import com.netflix.conductor.core.execution.tasks.WorkflowSystemTask;
+import com.netflix.conductor.model.TaskModel;
+import com.netflix.conductor.model.WorkflowModel;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,8 +42,7 @@ public class UserTask extends WorkflowSystemTask {
     private final ObjectMapper objectMapper;
 
     private static final TypeReference<Map<String, Map<String, List<Object>>>>
-            mapStringListObjects = new TypeReference<>() {
-    };
+            mapStringListObjects = new TypeReference<>() {};
 
     @Autowired
     public UserTask(ObjectMapper objectMapper) {

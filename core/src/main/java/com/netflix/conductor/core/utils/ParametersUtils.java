@@ -65,7 +65,10 @@ public class ParametersUtils {
     }
 
     public Map<String, Object> getTaskInputV2(
-            Map<String, Object> input, WorkflowModel workflow, String taskId, TaskDef taskDefinition) {
+            Map<String, Object> input,
+            WorkflowModel workflow,
+            String taskId,
+            TaskDef taskDefinition) {
         Map<String, Object> inputParams;
 
         if (input != null) {

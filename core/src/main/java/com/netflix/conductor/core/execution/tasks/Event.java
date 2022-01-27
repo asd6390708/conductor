@@ -69,7 +69,9 @@ public class Event extends WorkflowSystemTask {
             LOGGER.debug("Published message:{} to queue:{}", message.getId(), queue.getName());
             task.getOutputData().putAll(payload);
             task.setStatus(
-                    isAsyncComplete(task) ? TaskModel.Status.IN_PROGRESS : TaskModel.Status.COMPLETED);
+                    isAsyncComplete(task)
+                            ? TaskModel.Status.IN_PROGRESS
+                            : TaskModel.Status.COMPLETED);
         } catch (ApplicationException ae) {
             if (ae.isRetryable()) {
                 LOGGER.info(

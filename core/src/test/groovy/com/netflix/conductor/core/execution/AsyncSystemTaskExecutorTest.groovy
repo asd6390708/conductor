@@ -12,9 +12,6 @@
  */
 package com.netflix.conductor.core.execution
 
-import com.netflix.conductor.model.TaskModel
-import com.netflix.conductor.model.WorkflowModel
-
 import java.time.Duration
 
 import com.netflix.conductor.common.metadata.tasks.TaskDef
@@ -26,6 +23,8 @@ import com.netflix.conductor.core.utils.IDGenerator
 import com.netflix.conductor.core.utils.QueueUtils
 import com.netflix.conductor.dao.MetadataDAO
 import com.netflix.conductor.dao.QueueDAO
+import com.netflix.conductor.model.TaskModel
+import com.netflix.conductor.model.WorkflowModel
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import spock.lang.Specification

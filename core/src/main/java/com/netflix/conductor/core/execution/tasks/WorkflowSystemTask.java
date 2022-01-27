@@ -43,15 +43,16 @@ public abstract class WorkflowSystemTask {
     /**
      * "Execute" the task.
      *
-     * <p>Called after {@link #start(WorkflowModel, TaskModel, WorkflowExecutor)}, if the task status is
-     * not terminal. Can be called more than once.
+     * <p>Called after {@link #start(WorkflowModel, TaskModel, WorkflowExecutor)}, if the task
+     * status is not terminal. Can be called more than once.
      *
      * @param workflow Workflow for which the task is being started
      * @param task Instance of the Task
      * @param workflowExecutor Workflow Executor
      * @return true, if the execution has changed the task status. return false otherwise.
      */
-    public boolean execute(WorkflowModel workflow, TaskModel task, WorkflowExecutor workflowExecutor) {
+    public boolean execute(
+            WorkflowModel workflow, TaskModel task, WorkflowExecutor workflowExecutor) {
         return false;
     }
 

@@ -31,7 +31,8 @@ import static com.netflix.conductor.common.metadata.tasks.TaskType.TASK_TYPE_WAI
 
 /**
  * An implementation of {@link TaskMapper} to map a {@link WorkflowTask} of type {@link
- * TaskType#WAIT} to a {@link TaskModel} of type {@link Wait} with {@link TaskModel.Status#IN_PROGRESS}
+ * TaskType#WAIT} to a {@link TaskModel} of type {@link Wait} with {@link
+ * TaskModel.Status#IN_PROGRESS}
  */
 @Component
 public class WaitTaskMapper implements TaskMapper {

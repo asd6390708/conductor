@@ -18,11 +18,11 @@ import com.netflix.conductor.core.events.queue.Message
 import com.netflix.conductor.core.events.queue.ObservableQueue
 import com.netflix.conductor.core.exception.ApplicationException
 import com.netflix.conductor.core.utils.ParametersUtils
+import com.netflix.conductor.model.TaskModel
+import com.netflix.conductor.model.WorkflowModel
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.netflix.conductor.model.TaskModel
-import com.netflix.conductor.model.WorkflowModel
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -30,7 +30,7 @@ class EventSpec extends Specification {
 
     EventQueues eventQueues
     ParametersUtils parametersUtils
-    ObjectMapper mapper
+    ObjectMapper objectMapper
     ObservableQueue observableQueue
 
     String payloadJSON = "payloadJSON"
@@ -44,14 +44,14 @@ class EventSpec extends Specification {
         parametersUtils = Mock(ParametersUtils.class)
         eventQueues = Mock(EventQueues.class)
         observableQueue = Mock(ObservableQueue.class)
-        mapper = Mock(ObjectMapper.class) {
+        objectMapper = Mock(ObjectMapper.class) {
             writeValueAsString(_) >> payloadJSON
         }
 
         testWorkflowDefinition = new WorkflowDef(name: "testWorkflow", version: 2)
         workflow = new WorkflowModel(workflowDefinition: testWorkflowDefinition, workflowId: 'workflowId', correlationId: 'corrId')
 
-        event = new Event(eventQueues, parametersUtils, mapper)
+        event = new Event(eventQueues, parametersUtils, objectMapper)
     }
 
     def "verify that event task is async"() {
@@ -262,7 +262,7 @@ class EventSpec extends Specification {
         task.status == TaskModel.Status.FAILED
         task.reasonForIncompletion != null
 
-        1 * mapper.writeValueAsString(_ as Map) >> { throw new JsonParseException(null, "invalid json") }
+        1 * objectMapper.writeValueAsString(_ as Map) >> { throw new JsonParseException(null, "invalid json") }
     }
 
     def "event task fails with an unexpected exception"() {

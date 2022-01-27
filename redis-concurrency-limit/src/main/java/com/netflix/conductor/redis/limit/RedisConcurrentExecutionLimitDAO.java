@@ -26,8 +26,8 @@ import com.netflix.conductor.annotations.Trace;
 import com.netflix.conductor.common.metadata.tasks.TaskDef;
 import com.netflix.conductor.core.exception.ApplicationException;
 import com.netflix.conductor.dao.ConcurrentExecutionLimitDAO;
-import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.metrics.Monitors;
+import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.redis.limit.config.RedisConcurrentExecutionLimitProperties;
 
 @Trace
@@ -109,8 +109,8 @@ public class RedisConcurrentExecutionLimitDAO implements ConcurrentExecutionLimi
     }
 
     /**
-     * Checks if the {@link TaskModel} identifier is in the Redis Set and size of the set is more than
-     * the {@link TaskDef#concurrencyLimit()}.
+     * Checks if the {@link TaskModel} identifier is in the Redis Set and size of the set is more
+     * than the {@link TaskDef#concurrencyLimit()}.
      *
      * @param task The {@link TaskModel} object.
      * @return true if the task id is not in the set and size of the set is more than the {@link

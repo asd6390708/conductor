@@ -427,7 +427,8 @@ public class TestDeciderOutcomes {
         assertEquals(1, outcome.tasksToBeUpdated.size());
         assertEquals(1, outcome.tasksToBeScheduled.size());
 
-        assertEquals(TaskModel.Status.COMPLETED_WITH_ERRORS, workflow.getTasks().get(0).getStatus());
+        assertEquals(
+                TaskModel.Status.COMPLETED_WITH_ERRORS, workflow.getTasks().get(0).getStatus());
         assertEquals(task1Id, outcome.tasksToBeUpdated.get(0).getTaskId());
         assertEquals(
                 task2.getTaskReferenceName(),

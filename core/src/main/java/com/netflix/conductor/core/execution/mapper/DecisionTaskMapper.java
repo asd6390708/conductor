@@ -36,9 +36,9 @@ import com.google.common.annotations.VisibleForTesting;
 
 /**
  * An implementation of {@link TaskMapper} to map a {@link WorkflowTask} of type {@link
- * TaskType#DECISION} to a List {@link TaskModel} starting with Task of type {@link TaskType#DECISION}
- * which is marked as IN_PROGRESS, followed by the list of {@link TaskModel} based on the case
- * expression evaluation in the Decision task.
+ * TaskType#DECISION} to a List {@link TaskModel} starting with Task of type {@link
+ * TaskType#DECISION} which is marked as IN_PROGRESS, followed by the list of {@link TaskModel}
+ * based on the case expression evaluation in the Decision task.
  *
  * @deprecated {@link com.netflix.conductor.core.execution.tasks.Decision} is also deprecated. Use
  *     {@link com.netflix.conductor.core.execution.tasks.Switch} and so ${@link SwitchTaskMapper}

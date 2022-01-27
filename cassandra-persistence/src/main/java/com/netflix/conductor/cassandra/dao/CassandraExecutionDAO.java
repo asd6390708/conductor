@@ -33,9 +33,9 @@ import com.netflix.conductor.core.exception.ApplicationException;
 import com.netflix.conductor.core.exception.ApplicationException.Code;
 import com.netflix.conductor.dao.ConcurrentExecutionLimitDAO;
 import com.netflix.conductor.dao.ExecutionDAO;
+import com.netflix.conductor.metrics.Monitors;
 import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.model.WorkflowModel;
-import com.netflix.conductor.metrics.Monitors;
 
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.PreparedStatement;
@@ -365,7 +365,8 @@ public class CassandraExecutionDAO extends CassandraBaseDAO
             return Optional.ofNullable(resultSet.one())
                     .map(
                             row -> {
-                                TaskModel task = readValue(row.getString(PAYLOAD_KEY), TaskModel.class);
+                                TaskModel task =
+                                        readValue(row.getString(PAYLOAD_KEY), TaskModel.class);
                                 recordCassandraDaoRequests(
                                         "getTask", task.getTaskType(), task.getWorkflowType());
                                 recordCassandraDaoPayloadSize(
@@ -627,7 +628,8 @@ public class CassandraExecutionDAO extends CassandraBaseDAO
      * Conductor
      */
     @Override
-    public List<WorkflowModel> getWorkflowsByType(String workflowName, Long startTime, Long endTime) {
+    public List<WorkflowModel> getWorkflowsByType(
+            String workflowName, Long startTime, Long endTime) {
         throw new UnsupportedOperationException(
                 "This method is not implemented in CassandraExecutionDAO. Please use ExecutionDAOFacade instead.");
     }

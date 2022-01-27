@@ -22,9 +22,9 @@ import com.netflix.conductor.core.execution.tasks.WorkflowSystemTask;
 import com.netflix.conductor.core.utils.QueueUtils;
 import com.netflix.conductor.dao.MetadataDAO;
 import com.netflix.conductor.dao.QueueDAO;
+import com.netflix.conductor.metrics.Monitors;
 import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.model.WorkflowModel;
-import com.netflix.conductor.metrics.Monitors;
 
 @Component
 public class AsyncSystemTaskExecutor {
@@ -60,7 +60,6 @@ public class AsyncSystemTaskExecutor {
      * @param systemTask The {@link WorkflowSystemTask} to be executed.
      * @param taskId The id of the {@link TaskModel} object.
      */
-    // TODO: external storage
     public void execute(WorkflowSystemTask systemTask, String taskId) {
         TaskModel task = loadTaskQuietly(taskId);
         if (task == null) {
@@ -80,7 +79,6 @@ public class AsyncSystemTaskExecutor {
 
         if (task.getStatus().equals(TaskModel.Status.SCHEDULED)) {
             if (executionDAOFacade.exceedsInProgressLimit(task)) {
-                // TODO: add a metric to record this
                 LOGGER.warn(
                         "Concurrent Execution limited for {}:{}", taskId, task.getTaskDefName());
                 postponeQuietly(queueName, task);

@@ -12,9 +12,19 @@
  */
 package com.netflix.conductor.contribs.tasks.http;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.*;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.model.MediaType;
+import org.testcontainers.containers.MockServerContainer;
+import org.testcontainers.utility.DockerImageName;
+
 import com.netflix.conductor.common.metadata.tasks.TaskType;
 import com.netflix.conductor.common.metadata.workflow.WorkflowDef;
 import com.netflix.conductor.common.metadata.workflow.WorkflowTask;
@@ -26,18 +36,10 @@ import com.netflix.conductor.core.utils.ParametersUtils;
 import com.netflix.conductor.dao.MetadataDAO;
 import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.model.WorkflowModel;
-import org.junit.*;
-import org.mockserver.client.MockServerClient;
-import org.mockserver.model.MediaType;
-import org.testcontainers.containers.MockServerContainer;
-import org.testcontainers.utility.DockerImageName;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -45,7 +47,7 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 @SuppressWarnings("unchecked")
-//@Ignore // Test causes "OutOfMemoryError" error during build
+// @Ignore // Test causes "OutOfMemoryError" error during build
 public class HttpTaskTest {
 
     private static final String ERROR_RESPONSE = "Something went wrong!";
@@ -175,7 +177,8 @@ public class HttpTaskTest {
         task.getInputData().put(HttpTask.REQUEST_PARAMETER_NAME, input);
 
         httpTask.start(workflow, task, workflowExecutor);
-        assertEquals("Task output: " + task.getOutputData(), TaskModel.Status.FAILED, task.getStatus());
+        assertEquals(
+                "Task output: " + task.getOutputData(), TaskModel.Status.FAILED, task.getStatus());
         assertTrue(task.getReasonForIncompletion().contains(ERROR_RESPONSE));
 
         task.setStatus(TaskModel.Status.SCHEDULED);
@@ -200,7 +203,8 @@ public class HttpTaskTest {
         task.getInputData().put("asyncComplete", true);
 
         httpTask.start(workflow, task, workflowExecutor);
-        assertEquals(task.getReasonForIncompletion(), TaskModel.Status.IN_PROGRESS, task.getStatus());
+        assertEquals(
+                task.getReasonForIncompletion(), TaskModel.Status.IN_PROGRESS, task.getStatus());
         Map<String, Object> hr = (Map<String, Object>) task.getOutputData().get("response");
         Object response = hr.get("body");
         assertEquals(TaskModel.Status.IN_PROGRESS, task.getStatus());
@@ -320,7 +324,8 @@ public class HttpTaskTest {
         task.getInputData().put(HttpTask.REQUEST_PARAMETER_NAME, input);
 
         httpTask.start(workflow, task, workflowExecutor);
-        assertEquals("Task output: " + task.getOutputData(), TaskModel.Status.FAILED, task.getStatus());
+        assertEquals(
+                "Task output: " + task.getOutputData(), TaskModel.Status.FAILED, task.getStatus());
         assertTrue(task.getReasonForIncompletion().contains(ERROR_RESPONSE));
         assertFalse(task.getStatus().isSuccessful());
 

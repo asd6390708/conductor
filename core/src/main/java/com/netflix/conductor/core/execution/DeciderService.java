@@ -39,9 +39,9 @@ import com.netflix.conductor.core.utils.ExternalPayloadStorageUtils;
 import com.netflix.conductor.core.utils.IDGenerator;
 import com.netflix.conductor.core.utils.ParametersUtils;
 import com.netflix.conductor.dao.MetadataDAO;
+import com.netflix.conductor.metrics.Monitors;
 import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.model.WorkflowModel;
-import com.netflix.conductor.metrics.Monitors;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -228,7 +228,9 @@ public class DeciderService {
                 LOGGER.debug(
                         "Scheduling Tasks from {}, next = {} for workflowId: {}",
                         pendingTask.getTaskDefName(),
-                        nextTasks.stream().map(TaskModel::getTaskDefName).collect(Collectors.toList()),
+                        nextTasks.stream()
+                                .map(TaskModel::getTaskDefName)
+                                .collect(Collectors.toList()),
                         workflow.getWorkflowId());
             }
         }
@@ -285,7 +287,8 @@ public class DeciderService {
                 .collect(Collectors.toList());
     }
 
-    private List<TaskModel> startWorkflow(WorkflowModel workflow) throws TerminateWorkflowException {
+    private List<TaskModel> startWorkflow(WorkflowModel workflow)
+            throws TerminateWorkflowException {
         final WorkflowDef workflowDef = workflow.getWorkflowDefinition();
 
         LOGGER.debug("Starting workflow: {}", workflow);
@@ -426,7 +429,8 @@ public class DeciderService {
                                             && status.isTerminal();
                                 });
 
-        boolean noPendingTasks = taskStatusMap.values().stream().allMatch(TaskModel.Status::isTerminal);
+        boolean noPendingTasks =
+                taskStatusMap.values().stream().allMatch(TaskModel.Status::isTerminal);
 
         boolean noPendingSchedule =
                 workflow.getTasks().stream()
@@ -492,7 +496,10 @@ public class DeciderService {
 
     @VisibleForTesting
     Optional<TaskModel> retry(
-            TaskDef taskDefinition, WorkflowTask workflowTask, TaskModel task, WorkflowModel workflow)
+            TaskDef taskDefinition,
+            WorkflowTask workflowTask,
+            TaskModel task,
+            WorkflowModel workflow)
             throws TerminateWorkflowException {
 
         int retryCount = task.getRetryCount();

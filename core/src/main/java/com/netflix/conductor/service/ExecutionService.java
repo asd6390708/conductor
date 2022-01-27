@@ -43,8 +43,8 @@ import com.netflix.conductor.common.utils.ExternalPayloadStorage;
 import com.netflix.conductor.common.utils.ExternalPayloadStorage.Operation;
 import com.netflix.conductor.common.utils.ExternalPayloadStorage.PayloadType;
 import com.netflix.conductor.core.config.ConductorProperties;
-import com.netflix.conductor.core.dal.ModelMapper;
 import com.netflix.conductor.core.dal.ExecutionDAOFacade;
+import com.netflix.conductor.core.dal.ModelMapper;
 import com.netflix.conductor.core.events.queue.Message;
 import com.netflix.conductor.core.exception.ApplicationException;
 import com.netflix.conductor.core.execution.WorkflowExecutor;
@@ -52,8 +52,8 @@ import com.netflix.conductor.core.execution.tasks.SystemTaskRegistry;
 import com.netflix.conductor.core.utils.QueueUtils;
 import com.netflix.conductor.core.utils.Utils;
 import com.netflix.conductor.dao.QueueDAO;
-import com.netflix.conductor.model.TaskModel;
 import com.netflix.conductor.metrics.Monitors;
+import com.netflix.conductor.model.TaskModel;
 
 @Trace
 @Service
@@ -410,8 +410,7 @@ public class ExecutionService {
                                 workflowId -> {
                                     try {
                                         return new WorkflowSummary(
-                                                executionDAOFacade.getWorkflow(
-                                                        workflowId, false));
+                                                executionDAOFacade.getWorkflow(workflowId, false));
                                     } catch (Exception e) {
                                         LOGGER.error(
                                                 "Error fetching workflow by id: {}", workflowId, e);
@@ -462,8 +461,7 @@ public class ExecutionService {
                                     try {
                                         String workflowId = taskSummary.getWorkflowId();
                                         return new WorkflowSummary(
-                                                executionDAOFacade.getWorkflow(
-                                                        workflowId, false));
+                                                executionDAOFacade.getWorkflow(workflowId, false));
                                     } catch (Exception e) {
                                         LOGGER.error(
                                                 "Error fetching workflow by id: {}",

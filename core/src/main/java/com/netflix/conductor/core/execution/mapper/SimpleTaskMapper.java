@@ -32,8 +32,8 @@ import com.netflix.conductor.model.WorkflowModel;
 
 /**
  * An implementation of {@link TaskMapper} to map a {@link WorkflowTask} of type {@link
- * TaskType#SIMPLE} to a {@link TaskModel} with status {@link TaskModel.Status#SCHEDULED}. <b>NOTE:</b>
- * There is not type defined for simples task.
+ * TaskType#SIMPLE} to a {@link TaskModel} with status {@link TaskModel.Status#SCHEDULED}.
+ * <b>NOTE:</b> There is not type defined for simples task.
  */
 @Component
 public class SimpleTaskMapper implements TaskMapper {
